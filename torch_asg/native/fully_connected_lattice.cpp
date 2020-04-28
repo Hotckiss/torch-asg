@@ -57,9 +57,9 @@ fully_connected_derivative(
 ) {
     auto grad_inputs = masked_softmax(gamma, 2) * grad_out.view({1, num_batches, 1});
     auto grad_transition = (grad_inputs.slice(0, 1).view({batch_input_len - 1, num_batches, num_labels, 1}) *
-                            masked_softmax(path_contrib, 3)).sum({0, 1});
+                            masked_softmax(path_contrib, 3)).sum(c10::IntArrayRef({0, 1}));
 
-    return {grad_transition, grad_inputs};
+    return std::make_tuple(grad_transition, grad_inputs);
 }
 
 std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor>
@@ -87,7 +87,7 @@ fully_connected_forward(
     fully_connected_beta_recursion(beta, input_aligned, transition, batch_input_len, num_batches, num_labels);
     beta = should_roll ? roll_to_end(beta, input_lengths_cpu, true) : beta;
     auto forward_scores = (beta[0] + inputs[0]).logsumexp(1);
-    return {forward_scores, alpha, beta, path_contrib};
+    return std::make_tuple(forward_scores, alpha, beta, path_contrib);
 }
 
 std::tuple<at::Tensor, at::Tensor>
