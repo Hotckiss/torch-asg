@@ -179,7 +179,7 @@ force_aligned_derivative(
     self_trans_grad.slice(1, 1) = (state_factor * hori_factor).sum(0);
     next_trans_grad.slice(1, 0, batch_output_len - 1) = (state_factor * diag_factor).sum(0);
 
-    return {aligned_inputs_grad, aligned_transition_grad};
+    return std::make_tuple(aligned_inputs_grad, aligned_transition_grad);
 }
 
 //template<typename scalar_t>
@@ -315,7 +315,7 @@ force_aligned_forward(
 //    auto scores = MY_DISPATCH_FLOAT(collect_scores, alpha, input_lengths, output_lengths, num_batches);
     auto scores = beta[0].permute({1, 0})[0] + aligned_inputs[0].permute({1, 0})[0];
 
-    return {scores, alpha, beta, path_contrib};
+    return std::make_tuple(scores, alpha, beta, path_contrib);
 }
 
 std::tuple<at::Tensor, at::Tensor>
@@ -352,8 +352,7 @@ force_aligned_backward(
                                  aligned_transition_grad, outputs,
                                  output_lengths, num_batches, num_labels);
 
-    return {transition_grad, inputs_grad};
+    return std::make_tuple(transition_grad, inputs_grad);
 }
 
 }
-
