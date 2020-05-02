@@ -122,14 +122,17 @@ class ASGLoss(nn.Module):
             target_lengths = torch.min(target_lengths, other=target_lengths.new_tensor([batch_output_len]))
 
         if self.gpu_no_stream_impl or not inputs.is_cuda:
+            print("use the serial implementation")
             # use the "serial" implementation
             fac_result = FAC.apply(self.transition, inputs, targets, input_lengths, target_lengths)
             fcc_result = FCC.apply(self.transition, inputs, targets, input_lengths, target_lengths)
             result = fcc_result - fac_result
         elif self.forward_only or not self.training:
+            print("use forward_only implementation")
             # use the GPU fast implementation without backward support
             result = ASGGPUFastForwardOnly.apply(inputs, targets, self.transition, input_lengths, target_lengths)
         else:
+            print("use gpu implementation")
             # use the fast GPU implementation
             full_scores, aligned_scores = ASGGPUFast.apply(inputs, self.transition, targets, input_lengths,
                                                            target_lengths)
