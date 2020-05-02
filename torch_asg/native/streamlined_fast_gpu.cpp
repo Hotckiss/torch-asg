@@ -224,9 +224,9 @@ fast_asg_gpu_forward(
     _block_waiters(stream_aligned_beta, {stream_full_beta});
     _block_waiters(stream_aligned_alpha, {stream_full_beta});
 
-    return {forward_scores_full, forward_scores_aligned,
+    return std::make_tuple(forward_scores_full, forward_scores_aligned,
             gamma_full, gamma_aligned,
-            path_contrib_full, path_contrib_aligned};
+            path_contrib_full, path_contrib_aligned);
 }
 
 std::tuple<
@@ -260,7 +260,7 @@ fast_asg_gpu_backward(
 
     auto grad_inputs = masked_softmax(gamma_full, 2) * grad_out_full.view({1, num_batches, 1});
     auto grad_transition = (grad_inputs.slice(0, 1).view({batch_input_len - 1, num_batches, num_labels, 1}) *
-                            masked_softmax(path_contrib_full, 3)).sum({0, 1});
+                            masked_softmax(path_contrib_full, 3)).sum(c10::IntArrayRef({0, 1}));
 
     at::cuda::setCurrentCUDAStream(stream2);
 
@@ -292,7 +292,7 @@ fast_asg_gpu_backward(
     // go back to default
     at::cuda::setCurrentCUDAStream(stream1);
 
-    return {grad_transition, grad_inputs};
+    return std::make_tuple(grad_transition, grad_inputs);
 
 }
 
