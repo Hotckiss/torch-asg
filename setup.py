@@ -8,7 +8,7 @@ except:
 
 ext_mods = []
 
-if torch.cuda.is_available():
+if True:
     print("With cuda")
     ext_mods.append(CUDAExtension(name='torch_asg_native',
                                   sources=['torch_asg/native/utils.cpp',
