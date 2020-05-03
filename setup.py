@@ -9,6 +9,7 @@ except:
 ext_mods = []
 
 if torch.cuda.is_available():
+    print("With cuda")
     ext_mods.append(CUDAExtension(name='torch_asg_native',
                                   sources=['torch_asg/native/utils.cpp',
                                            'torch_asg/native/force_aligned_lattice.cpp',
@@ -33,6 +34,7 @@ if torch.cuda.is_available():
                                                ],
                                   }))
 else:
+    print("No cuda")
     ext_mods.append(CppExtension(name='torch_asg_native',
                                  sources=['torch_asg/native/utils.cpp',
                                           'torch_asg/native/force_aligned_lattice.cpp',
