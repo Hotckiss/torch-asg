@@ -106,7 +106,7 @@ class ASGLoss(nn.Module):
         self.forward_only = forward_only
         self.gpu_no_stream_impl = gpu_no_stream_impl
 
-    def forward(self, inputs, targets, input_lengths=None, target_lengths=None, transitions):
+    def forward(self, inputs, targets, input_lengths, target_lengths, transitions):
         batch_input_len, num_batches, num_labels = inputs.shape
         _, batch_output_len = targets.shape
 
